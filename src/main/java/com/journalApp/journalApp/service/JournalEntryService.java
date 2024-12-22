@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.journalApp.journalApp.entity.JournalEntry;
+import com.journalApp.journalApp.entity.User;
 import com.journalApp.journalApp.repository.JournalEntryRepository;
 
 @Service
@@ -15,7 +16,15 @@ public class JournalEntryService {
     
     @Autowired
     private JournalEntryRepository journalEntryRepository;
-    
+    @Autowired
+    private UserService userService;
+
+    public void saveEntry(JournalEntry journalEntry,String username){
+        User user=userService.findByUsername(username);
+        JournalEntry saved= journalEntryRepository.save(journalEntry);
+        user.getJournalEntries().add(saved);
+        userService.createUser(user);
+    }
     public void saveEntry(JournalEntry journalEntry){
         journalEntryRepository.save(journalEntry);
     }
@@ -28,7 +37,10 @@ public class JournalEntryService {
         return journalEntryRepository.findById(id);
     }
 
-    public void deleteById(ObjectId id){
+    public void deleteById(ObjectId id,String username){
+         User user= userService.findByUsername(username);
+         user.getJournalEntries().removeIf(x->x.getId().equals(id));
+         userService.createUser(user);
          journalEntryRepository.deleteById(id);
     }
 }

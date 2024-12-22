@@ -17,7 +17,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.journalApp.journalApp.entity.JournalEntry;
+import com.journalApp.journalApp.entity.User;
 import com.journalApp.journalApp.service.JournalEntryService;
+import com.journalApp.journalApp.service.UserService;
 
 @RestController
 @RequestMapping("/journal")
@@ -25,17 +27,21 @@ public class JournalEntryControllerMongodb {
 
     @Autowired
     private JournalEntryService journalEntryService;
+    @Autowired
+    private UserService userService;
 
-    @GetMapping("/entry")
-    public ResponseEntity<List<JournalEntry>> getAll() {
-        List<JournalEntry> entries = journalEntryService.getEntries();
+
+    @GetMapping("{username}")
+    public ResponseEntity<List<JournalEntry>> getAll(@PathVariable String username) {
+        User usr=userService.findByUsername(username);
+        List<JournalEntry> entries = usr.getJournalEntries();
         return new ResponseEntity<>(entries, HttpStatus.OK);
     }
 
-    @PostMapping("/entry")
-    public ResponseEntity<JournalEntry> createEntry(@RequestBody JournalEntry mEntry) {
+    @PostMapping("{username}")
+    public ResponseEntity<JournalEntry> createEntry(@RequestBody JournalEntry mEntry,@PathVariable String username) {
         try {
-            journalEntryService.saveEntry(mEntry);
+            journalEntryService.saveEntry(mEntry,username);
             return new ResponseEntity<>(mEntry, HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -51,8 +57,8 @@ public class JournalEntryControllerMongodb {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    @PutMapping("id/{myId}")
-    public ResponseEntity<JournalEntry> updateEntry(@PathVariable ObjectId myId, @RequestBody JournalEntry mEntry) {
+    @PutMapping("id/{username}/{myId}")
+    public ResponseEntity<JournalEntry> updateEntry(@PathVariable ObjectId myId, @RequestBody JournalEntry mEntry,@PathVariable String username) {
         Optional<JournalEntry> oldEntryOpt = journalEntryService.getById(myId);
         if (oldEntryOpt.isPresent()) {
             JournalEntry oldEntry = oldEntryOpt.get();
@@ -64,10 +70,10 @@ public class JournalEntryControllerMongodb {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    @DeleteMapping("id/{myId}")
-    public ResponseEntity<HttpStatus> deleteEntry(@PathVariable ObjectId myId) {
+    @DeleteMapping("id/{username}/{myId}")
+    public ResponseEntity<HttpStatus> deleteEntry(@PathVariable String username,@PathVariable ObjectId myId) {
         try {
-            journalEntryService.deleteById(myId);
+            journalEntryService.deleteById(myId,username);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
