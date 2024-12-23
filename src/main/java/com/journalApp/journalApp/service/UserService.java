@@ -1,6 +1,7 @@
 package com.journalApp.journalApp.service;
 
 import java.util.Arrays;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -23,6 +24,12 @@ public class UserService {
         userRepository.save(user);
         return user;
     }
+    public User createAdmin(User user){
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setRoles(Arrays.asList("USER","ADMIN"));
+        userRepository.save(user);
+        return user;
+    }
     public void saveUser(User user){
         userRepository.save(user);
     }
@@ -33,6 +40,9 @@ public class UserService {
         User userInDb= userRepository.findByUsername(username);
         userRepository.delete(userInDb);
         return true;
+    }
+    public List<User> getAll(){
+        return userRepository.findAll();
     }
 
 }
