@@ -1,8 +1,10 @@
 package com.journalApp.journalApp.service;
 
-import java.util.List;
+import java.util.Arrays;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.journalApp.journalApp.entity.User;
@@ -13,15 +15,21 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
-    public List<User> getAllUsers(){
-        return userRepository.findAll();
-    }
+    private static final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
     public User createUser(User user){
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setRoles(Arrays.asList("USER"));
         userRepository.save(user);
         return user;
     }
     public User findByUsername(String username){
         return userRepository.findByUsername(username);
+    }
+    public boolean deleteByUsername(String username){
+        User userInDb= userRepository.findByUsername(username);
+        userRepository.delete(userInDb);
+        return true;
     }
 
 }
