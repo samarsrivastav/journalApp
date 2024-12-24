@@ -7,12 +7,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.journalApp.journalApp.entity.User;
+import com.journalApp.journalApp.service.QuoteService;
 import com.journalApp.journalApp.service.UserService;
 
 @RestController
@@ -21,6 +23,9 @@ public class UserController {
     
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private QuoteService quoteService;
 
     @PutMapping
     public ResponseEntity<?> updateUser(@RequestBody User user){
@@ -39,6 +44,13 @@ public class UserController {
         String username=authentication.getName();
         userService.deleteByUsername(username);
         return new ResponseEntity<>("User Deleted", HttpStatus.NO_CONTENT);
+    }
+    @GetMapping
+    public ResponseEntity<?> greetings(){
+        Authentication authentication= SecurityContextHolder.getContext().getAuthentication();
+        String username=authentication.getName();
+        String response="Hi "+username+"\n"+quoteService.getQuote("happiness").getQuote();
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
 }
