@@ -1,0 +1,14 @@
+spring:
+  data:
+    mongodb:
+      uri: mongodb+srv://samarsrivastav69:Samar123@cluster0.f5cfk.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+      database: journalApp
+      auto-index-creation: true
+  main:
+    allow-circular-references: true 
+
+server:
+  port: 8080
+  # servlet: 
+  #   context-path: /api ------> this gives a path prefix 
+# this yml is same as application.properties
